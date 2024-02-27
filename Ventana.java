@@ -1,9 +1,10 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class Ventana extends WindowAdapter implements WindowListener{
 
-    public Ventana(String pTitulo){
+    public Ventana(String pTitulo, Archivo archivo) {
         //Establecemos la ventana y la hacemos visible
         Frame ventana = new Frame(pTitulo);
         ventana.setVisible(true);
@@ -51,32 +52,92 @@ public class Ventana extends WindowAdapter implements WindowListener{
         lbl4.setBounds(20, 300, 125, 30);
         ventana.add(descripcion);
         descripcion.setBounds(20, 350, 225, 100);
+        descripcion.setEditable(false);
 
         //Posicionamos lbl5 y autores
         ventana.add(lbl5);
         lbl5.setBounds(250, 300, 125, 30);
         ventana.add(autores);
         autores.setBounds(250, 350, 225, 100);
+        autores.setEditable(false);
 
         //Posicionamos el boton CERRAR
         ventana.add(cerrar);
         cerrar.setBounds(200,475,100,50);
 
+        //Añadimos las colecciones a choice
+        for (Coleccion coleccion : archivo.getColecciones()) {
+            choice.add(coleccion.getNombre());
+        }
 
-
-
-
+        //Metodo para salirnos de la ventana
         ventana.addWindowListener(this);
+        //Metodo para activar el buton cerrar
         cerrar.addActionListener(new EventoBoton());
+        //Metodo para mostrar las respectivas publicaciones de una coleccion
+        choice.addItemListener(new PublicacionesColeccion(archivo, choice, listaPublicaciones));
     }
 
+    //Metodo para salirnos de la ventana
     public void windowClosing(WindowEvent e){
         System.exit(0);
     }
 
+    /**
+     * Establecemos una clase para poder usar el boton
+     */
     private class EventoBoton implements ActionListener{
         public void actionPerformed(ActionEvent a){
             System.exit(0);
         }
     }
+
+    /**
+     * Creamos clase para mostrar las publicaciones de una coleccion
+     */
+
+    private class PublicacionesColeccion implements ItemListener {
+
+        /**
+         * Establecemos las variables
+         */
+        Choice eleccion;
+        List publicationList;
+        Archivo archivo;
+
+        /**
+         * Definimos el constructor de la clase
+         */
+        public PublicacionesColeccion(Archivo archivo, Choice choice, List publication) {
+            this.eleccion = choice;
+            this.publicationList = publication;
+            this.archivo = archivo;
+        }
+
+        /**
+         * Establecemos el metodo para mostrar el cambio en la seleccion de choice
+         *
+         * @param e the event to be processed
+         */
+
+        public void itemStateChanged(ItemEvent e) {
+            publicationList.removeAll();
+            String coleccionSeleccionada = eleccion.getSelectedItem();
+            for (Coleccion coleccion : archivo.getColecciones()) {
+                ArrayList<Publicacion> pub = null;
+                if (coleccion.getNombre().equals(coleccionSeleccionada)) {
+                    pub = coleccion.getPublicaciones();
+                }
+                if (pub != null) {
+                    for (Publicacion publicacion : pub) {
+                        publicationList.add(publicacion.getTitulo());
+                    }
+                }
+
+            }
+        }
+
+    }
+
+
 }

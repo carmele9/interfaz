@@ -72,10 +72,15 @@ public class Ventana extends WindowAdapter implements WindowListener{
 
         //Metodo para salirnos de la ventana
         ventana.addWindowListener(this);
+
         //Metodo para activar el buton cerrar
         cerrar.addActionListener(new EventoBoton());
+
         //Metodo para mostrar las respectivas publicaciones de una coleccion
         choice.addItemListener(new PublicacionesColeccion(archivo, choice, listaPublicaciones));
+
+        //Metodo para mostrar las respectivas descripciones y autorias de una publicacion
+        listaPublicaciones.addItemListener(new DescripcionyAutores(listaPublicaciones,archivo, descripcion, autores));
     }
 
     //Metodo para salirnos de la ventana
@@ -99,14 +104,17 @@ public class Ventana extends WindowAdapter implements WindowListener{
     private class PublicacionesColeccion implements ItemListener {
 
         /**
-         * Establecemos las variables
+         * Establecemos las variables definidas para esta clase
          */
         Choice eleccion;
         List publicationList;
         Archivo archivo;
 
         /**
-         * Definimos el constructor de la clase
+         * Establecemos el constructor de la clase
+         * @param archivo
+         * @param choice
+         * @param publication
          */
         public PublicacionesColeccion(Archivo archivo, Choice choice, List publication) {
             this.eleccion = choice;
@@ -133,11 +141,61 @@ public class Ventana extends WindowAdapter implements WindowListener{
                         publicationList.add(publicacion.getTitulo());
                     }
                 }
-
             }
         }
 
     }
 
+    /**
+     * Clase para establecer la descripcion y los autores de la publicacion selecionada
+     */
+    private class DescripcionyAutores implements ItemListener{
+
+        /**
+         * Establecemos las variables propias de la clase
+         */
+        List publicacionList;
+        Archivo archivo;
+        TextArea descripcion;
+        TextArea autores;
+
+        /**
+         * Establecemos el constructor de la clase
+          * @param publicacionList
+         * @param archivo
+         * @param descripcion
+         * @param autores
+         */
+        public DescripcionyAutores(List publicacionList, Archivo archivo, TextArea descripcion, TextArea autores){
+            this.publicacionList = publicacionList;
+            this.archivo = archivo;
+            this.descripcion=descripcion;
+            this.autores = autores;
+        }
+
+        /**
+         * Establecemos el metodo para realizar dicha accion
+         * @param e the event to be processed
+         */
+        public void itemStateChanged(ItemEvent e){
+            int seleccion = publicacionList.getSelectedIndex();
+            String pSeleccionada = publicacionList.getItem(seleccion);
+            if (seleccion != -1){
+                for (Coleccion c : archivo.getColecciones()){
+                    for(Publicacion p : c.getPublicaciones()){
+                        if (p.getTitulo().equals(pSeleccionada)){
+                            descripcion.setText(p.getDescripcion());
+                            for(Autor a : p.getAutorias()){
+                                autores.setText(a.getNombreCompleto());
+                            }
+                        }
+                    }
+                }
+            }else{
+                descripcion.setText("");
+                autores.setText("");
+            }
+        }
+    }
 
 }
